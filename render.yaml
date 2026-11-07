@@ -1,0 +1,15 @@
+# RUNNAUP — Render Blueprint (NOT deployed yet — Ken's deploy decision pending)
+services:
+  - type: web
+    name: runnaup
+    env: python
+    plan: starter
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app:app --host 0.0.0.0 --port $PORT
+    disk:
+      name: runnaup-data
+      mountPath: /data
+      sizeGB: 1
+    envVars:
+      - key: RUNNAUP_DB
+        value: /data/runnaup.db
