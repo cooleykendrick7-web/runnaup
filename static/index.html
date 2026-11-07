@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>RUNNAUP — Paid Surveys & Studies</title>
+<meta name="theme-color" content="#0b1020">
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="RUNNAUP">
+<style>
+:root{--bg:#070b16;--panel:#0e1628;--panel2:#121f3a;--line:#21335c;--txt:#e8eefc;--mut:#93a7cf;--gold:#fbbf24;--green:#4ade80;--acc:#38bdf8}
+*{box-sizing:border-box}body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--txt)}
+header{padding:16px 18px;background:linear-gradient(90deg,#0b1020,#052e16);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}
+h1{margin:0;font-size:26px;letter-spacing:1px}.sub{color:#b6c2e8;font-size:13px;margin-top:3px}
+main{max-width:1020px;margin:0 auto;padding:16px}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:6px 0 14px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px}.card b{font-size:26px;display:block}.card span{color:var(--mut);font-size:13px}
+button{background:var(--acc);color:#04121f;border:0;padding:9px 14px;border-radius:9px;font-weight:700;cursor:pointer;font-size:14px}
+button.admin{background:var(--gold);color:#231a02;padding:11px 18px;font-size:15px;border-radius:11px}
+button.act{background:#334155;color:#fff;padding:8px 12px;font-size:13px}
+button.ready{background:#166534;color:#fff;padding:8px 12px;font-size:13px}
+button.pass{background:#7f1d1d;color:#fff;padding:8px 12px;font-size:13px}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+.tab{padding:10px 16px;border-radius:999px;border:1px solid var(--line);background:var(--panel);color:var(--txt);font-weight:700;cursor:pointer}
+.tab.on{background:var(--acc);color:#04121f;border-color:var(--acc)}
+table{width:100%;border-collapse:collapse;background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+td,th{padding:11px;border-bottom:1px solid var(--line);text-align:left;font-size:14px;vertical-align:top}
+.badge{display:inline-block;padding:2px 9px;border-radius:999px;font-size:11px;font-weight:800;text-transform:uppercase;white-space:nowrap}
+.found{background:#1e3a5f;color:#bfdbfe}.joined{background:#155e75;color:#cffafe}.ready{background:#166534;color:#bbf7d0}.started{background:#713f12;color:#fde68a}.completed{background:#4c1d95;color:#ddd6fe}.paid{background:#4ade80;color:#052e16}.passed{background:#475569;color:#e2e8f0}
+.t-survey{background:#0f766e;color:#ccfbf1}.t-study{background:#9d174d;color:#fbcfe8}
+.mut{color:var(--mut);font-size:13px}a{color:var(--acc)}h2{margin:22px 0 6px}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.pay{color:var(--gold);font-weight:800}.hr{color:var(--green);font-weight:800}
+.notebox{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin:10px 0;font-size:14px}
+.warn{background:#3f1d02;border-color:#b45309}
+select,input{background:#0a1424;color:var(--txt);border:1px solid var(--line);border-radius:9px;padding:9px;font-size:14px}
+.flash{position:fixed;left:50%;transform:translateX(-50%);bottom:22px;background:#14532d;color:#bbf7d0;border:1px solid #16a34a;padding:12px 18px;border-radius:12px;font-weight:700;z-index:50}
+</style></head>
+<body>
+<header><div class="row" style="justify-content:space-between"><div><h1>🏃 RUNNAUP</h1><div class="sub">Paid surveys + paid research studies — FREE only. Milli finds them, joins the free panels, and preps them. You answer, you get paid. <span id="upd" class="mut"></span></div></div>
+<div class="row"><a href="/operator"><button class="admin" style="background:#4ade80">🛰️ Operator</button></a><a href="/admin"><button class="admin">⚙️ Admin — no password</button></a></div></div></header>
+<main>
+<div class="cards">
+  <div class="card"><span>💵 Earned (real money received ONLY)</span><b style="color:var(--green)" id="cEarned">$0.00</b><span id="cPaidN"></span></div>
+  <div class="card"><span>⏳ Pending potential (joined→completed)</span><b style="color:var(--gold)" id="cPending">$0</b><span>typical pay on active items — NOT earnings yet</span></div>
+  <div class="card"><span>🔎 Found</span><b id="cTotal">0</b><span id="cTypes"></span></div>
+  <div class="card"><span>✅ Ready for you</span><b style="color:var(--acc)" id="cReady">0</b><span>prepped & waiting for your answers</span></div>
+</div>
+
+<div class="notebox warn"><b>🚫 FREE-ONLY RULE:</b> <span class="mut">RUNNAUP only lists things that are <b style="color:var(--txt)">free to join and free to do</b>. Anything pay-to-join, paid plan, deposit, or purchase-required is rejected — the board's system literally refuses to save it. If a site ever asks you for money to "unlock" surveys, it's a scam. Close it.</span></div>
+
+<div class="notebox"><b>🛡️ THE HONEST RULE — read this once:</b> <span class="mut">Milli finds the surveys/studies, joins the free panels, and preps everything with your <b style="color:var(--txt)">real</b> demographic info, then queues items as <b style="color:var(--txt)">Ready</b>. <b style="color:var(--txt)">You tap in and answer the opinion / experience questions yourself.</b> A bot fake-answering surveys is fraud — panels detect it, ban the account, and void the pay. There is no fake-answer trick that works. The good news: the best money (Study Mode) is interviews and studies where your real answers ARE the product.</span></div>
+
+<div class="notebox"><b>⭐ STUDY MODE = THE REAL MONEY:</b> <span class="mut">Plain surveys pay pocket change ($0.50–$3, low $/hr). <b style="color:var(--txt)">Prolific, CloudResearch Connect, and User Interviews are study-type and usually the highest $/hr</b> — academic studies with a pay floor, plus interviews/focus groups at $45–$75+. Start there; use surveys as filler.</span></div>
+
+<div class="tabs">
+  <button class="tab on" data-f="all">All</button>
+  <button class="tab" data-f="survey">📋 Surveys</button>
+  <button class="tab" data-f="study">🎓 Study Mode</button>
+</div>
+<div class="row" style="margin:6px 0">
+  <label class="mut" for="sortSel"><b>Sort by:</b></label>
+  <select id="sortSel"><option value="hourly">⚡ Best $/hr</option><option value="pay">💰 Pay — HIGH to low</option><option value="name">🔤 Name A–Z</option><option value="status">📌 Status</option></select>
+  <input id="q" placeholder="Search provider, title…" style="flex:1;min-width:180px">
+</div>
+<div id="wrap"></div>
+
+<h2>🎯 Best $/hr Ready right now</h2>
+<div id="bestReady" class="notebox"><span class="mut">Nothing is Ready yet. When Milli preps an item, it lands here ranked by $/hr.</span></div>
+
+<h2>🧾 Profile prep — what Milli can fill, and what's missing</h2>
+<div class="notebox" id="prepBox"><span class="mut">Loading…</span></div>
+
+<p class="mut" style="text-align:center;margin-top:16px">RUNNAUP v1.0 · Pay figures are honest typicals from each platform (checked Nov 7, 2026) — never a guarantee · “Paid” counts only real money you received and entered · Free only, always.</p>
+</main>
+<div id="flashWrap"></div>
+<script>
+const $=s=>document.querySelector(s);
+const esc=t=>String(t??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const money=n=>'$'+Number(n||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+let all=[], filter='all';
+const STATUSES=['found','joined','ready','started','completed','paid','passed'];
+function badge(st){return `<span class="badge ${st}">${st}</span>`}
+function nextBtns(r){
+  const nx={found:'joined',joined:'ready',ready:'started',started:'completed'};
+  let h='<div class="row">';
+  if(nx[r.status])h+=`<button class="ready" onclick="setStatus('${r.slug}','${nx[r.status]}')">→ ${nx[r.status]}</button>`;
+  if(r.status==='completed')h+=`<span class="mut">Done — enter the real paid $ in Admin to count it 💵</span>`;
+  if(r.status==='paid')h+=`<span class="mut">💵 Paid ${money(r.paid_amount)}</span>`;
+  if(r.status!=='passed'&&r.status!=='paid')h+=`<button class="pass" onclick="setStatus('${r.slug}','passed')">✗ Pass</button>`;
+  if(r.status==='passed')h+=`<button class="act" onclick="setStatus('${r.slug}','found')">↩️ Reopen</button>`;
+  return h+'</div>'+(r.blocker?`<div class="mut" style="margin-top:4px">⛔ Blocker: ${esc(r.blocker)}</div>`:'');
+}
+function render(){
+  const q=($('#q').value||'').toLowerCase();
+  let rows=all.filter(r=>(filter==='all'||r.type===filter)&&(!q||(r.provider+' '+r.title).toLowerCase().includes(q)));
+  const mode=$('#sortSel').value; rows=[...rows];
+  if(mode==='hourly')rows.sort((a,b)=>(b.hourly||0)-(a.hourly||0));
+  else if(mode==='pay')rows.sort((a,b)=>(b.pay_amount||0)-(a.pay_amount||0));
+  else if(mode==='name')rows.sort((a,b)=>a.provider.localeCompare(b.provider));
+  else if(mode==='status')rows.sort((a,b)=>STATUSES.indexOf(a.status)-STATUSES.indexOf(b.status));
+  if(!rows.length){$('#wrap').innerHTML='<div class="notebox">Nothing in this mode yet.</div>';return;}
+  $('#wrap').innerHTML='<table><tr><th>Panel / Study</th><th>Mode</th><th>Typical pay</th><th>Eligibility</th><th>Status</th><th>Your move</th></tr>'+rows.map(r=>{
+    const name=r.url?`<a href="${esc(r.url)}" target="_blank" rel="noopener">${esc(r.provider)}</a>`:esc(r.provider);
+    return `<tr><td><b>${name}</b> — ${esc(r.title)}<div class="mut">${esc(r.notes||'')}</div><div class="mut">Found ${esc(r.date_found||'')} · Deadline: ${esc(r.deadline||'—')} · ✅ Free confirmed</div></td><td><span class="badge t-${r.type}">${r.type==='study'?'🎓 STUDY':'📋 SURVEY'}</span></td><td><span class="pay">${money(r.pay_amount)}</span> <span class="mut">typical · ${esc(r.pay_type)}</span><br><span class="mut">~${esc(r.est_minutes)} min</span><br><span class="hr">${r.hourly?money(r.hourly)+'/hr':''}</span></td><td class="mut">${esc(r.eligibility||'')}</td><td>${badge(r.status)}</td><td>${nextBtns(r)}</td></tr>`;
+  }).join('')+'</table>';
+}
+function flash(msg){$('#flashWrap').innerHTML=`<div class="flash">${esc(msg)}</div>`;setTimeout(()=>$('#flashWrap').innerHTML='',3000);}
+async function load(){
+  try{
+    const [items,sum,prep]=await Promise.all([fetch('/api/items').then(r=>r.json()),fetch('/api/summary').then(r=>r.json()),fetch('/api/profile-prep').then(r=>r.json())]);
+    all=items;
+    $('#cEarned').textContent=money(sum.earned_total);
+    $('#cPaidN').textContent=sum.by_status.paid?sum.by_status.paid+' item(s) paid':'nothing has paid out yet — earnings stay $0 until real money lands';
+    $('#cPending').textContent=money(sum.pending_potential);
+    $('#cTotal').textContent=sum.total;
+    $('#cTypes').textContent=`${sum.by_type.survey} surveys · ${sum.by_type.study} studies`;
+    $('#cReady').textContent=sum.by_status.ready;
+    $('#upd').textContent='Updated '+new Date().toLocaleTimeString();
+    if(sum.best_ready&&sum.best_ready.length){$('#bestReady').innerHTML=sum.best_ready.map(r=>`<div>⚡ <b>${esc(r.provider)}</b> — ${money(r.pay_amount)} typical · <span class="hr">${money(r.hourly)}/hr</span> <span class="mut">(${esc(r.type)})</span></div>`).join('');}
+    $('#prepBox').innerHTML=`<b>On file (from your private filing profile):</b> ${esc(prep.profile_on_file.name)} · ${esc(prep.profile_on_file.location)}<br><span class="mut">${esc(prep.profile_on_file.contact)}</span><br><br><b>Still missing — surveys ask these, and Milli will NEVER invent them. Give Ken's real answers:</b>`+prep.missing_checklist.map(m=>`<div>${m.provided?'✅':'⬜'} ${esc(m.item)}</div>`).join('')+`<div class="mut" style="margin-top:6px">${esc(prep.rule)}</div>`;
+    render();
+  }catch(e){}
+}
+window.setStatus=async(slug,status)=>{const r=await fetch('/api/items/'+slug,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({status})});if(r.ok){flash('✓ Updated — '+status);load();}else alert('Could not update.');};
+document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.remove('on'));t.classList.add('on');filter=t.dataset.f;render();});
+$('#sortSel').onchange=render; $('#q').oninput=render;
+load(); setInterval(load,30000);
+if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js').catch(()=>{});}
+</script></body></html>

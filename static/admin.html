@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>RUNNAUP — Admin Board</title>
+<meta name="theme-color" content="#0b1020">
+<style>
+:root{--bg:#070b16;--panel:#0e1628;--line:#21335c;--txt:#e8eefc;--mut:#93a7cf;--gold:#fbbf24;--green:#4ade80;--acc:#38bdf8}
+*{box-sizing:border-box}body{margin:0;font-family:Inter,system-ui,sans-serif;background:var(--bg);color:var(--txt)}
+header{padding:16px 18px;background:linear-gradient(90deg,#231a02,#29200a);border-bottom:1px solid var(--line)}
+main{max-width:1020px;margin:0 auto;padding:16px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:14px}
+input,select,textarea{background:#0a1424;color:var(--txt);border:1px solid var(--line);border-radius:9px;padding:9px;font-size:14px;width:100%}
+label{font-size:13px;color:var(--mut);display:block;margin:10px 0 4px}
+button{background:var(--acc);color:#04121f;border:0;padding:10px 16px;border-radius:9px;font-weight:700;cursor:pointer}
+button.gold{background:var(--gold);color:#231a02}button.red{background:#7f1d1d;color:#fff}button.green{background:#16a34a;color:#fff}button.ghost{background:transparent;color:var(--txt);border:1px solid var(--line)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px}
+table{width:100%;border-collapse:collapse}td,th{padding:9px;border-bottom:1px solid var(--line);text-align:left;font-size:14px;vertical-align:top}
+.mut{color:var(--mut);font-size:13px}a{color:var(--acc)}
+.flash{position:fixed;left:50%;transform:translateX(-50%);bottom:22px;background:#14532d;color:#bbf7d0;border:1px solid #16a34a;padding:12px 18px;border-radius:12px;font-weight:700;z-index:50}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+</style></head>
+<body>
+<header><div class="row" style="justify-content:space-between"><div><h1 style="margin:0">⚙️ RUNNAUP — Admin Board</h1><div class="mut" style="color:#d8b84a">No password — you clicked, you're in. Add finds, move statuses, enter REAL paid money, delete duds.</div></div><a href="/"><button class="ghost">← Back to board</button></a></div></header>
+<main>
+<div class="card"><h2 style="margin-top:0">📊 Right now</h2><div id="sum" class="mut">Loading…</div></div>
+
+<div class="card"><h2 style="margin-top:0">➕ Add a survey / study</h2>
+<div class="mut">🚫 <b>FREE ONLY:</b> if it costs anything to join or do — pay-to-join, paid plan, deposit, purchase — do NOT add it. The system rejects it (free must be confirmed, "requires payment" must stay No).</div>
+<div class="grid">
+<div><label>Slug (short id, no spaces)</label><input id="f_slug" placeholder="my-new-find"></div>
+<div><label>Provider / Panel</label><input id="f_provider" placeholder="Panel name"></div>
+<div><label>Mode</label><select id="f_type"><option value="survey">📋 Survey</option><option value="study">🎓 Study Mode</option></select></div>
+<div><label>Status</label><select id="f_status"><option>found</option><option>joined</option><option>ready</option><option>started</option><option>completed</option><option>paid</option><option>passed</option></select></div>
+</div>
+<label>Title — what it is in plain words</label><input id="f_title" placeholder="e.g. Consumer survey panel">
+<div class="grid">
+<div><label>Typical pay ($ — honest typical, NOT a promise)</label><input id="f_pay" type="number" step="0.01" placeholder="2.00"></div>
+<div><label>Pay type</label><select id="f_paytype"><option>cash</option><option>PayPal</option><option>gift card</option><option>points</option></select></div>
+<div><label>Est. minutes</label><input id="f_mins" type="number" placeholder="15"></div>
+<div><label>Link (real site)</label><input id="f_url" placeholder="https://…"></div>
+</div>
+<div class="grid">
+<div><label>Eligibility notes</label><input id="f_elig" placeholder="18+, US…"></div>
+<div><label>Deadline</label><input id="f_deadline" placeholder="Ongoing — no deadline"></div>
+<div><label>Free confirmed?</label><select id="f_free"><option value="yes">✅ Yes — 100% free</option><option value="no">No</option></select></div>
+<div><label>Requires payment / purchase?</label><select id="f_reqpay"><option value="no">No</option><option value="yes">Yes — will be REJECTED</option></select></div>
+</div>
+<label>Notes</label><textarea id="f_notes" rows="2" placeholder="How it pays, cash-out minimum, catches"></textarea>
+<label>Blocker (if stuck — e.g. needs Ken's answer)</label><input id="f_blocker" placeholder="">
+<div style="margin-top:12px"><button class="gold" onclick="addItem()">Add / Update item</button> <span class="mut">Same slug = updates the existing one.</span></div>
+</div>
+
+<div class="card"><h2 style="margin-top:0">🗂️ All items — manage</h2><div id="list">Loading…</div></div>
+<p class="mut" style="text-align:center">RUNNAUP Admin v1.0 · Open by Ken's design (no password) · Earnings count ONLY paid rows with a real amount &gt; $0 entered here.</p>
+</main>
+<div id="flashWrap"></div>
+<script>
+const $=s=>document.querySelector(s);
+const esc=t=>String(t??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const money=n=>'$'+Number(n||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+function flash(m){$('#flashWrap').innerHTML=`<div class="flash">${esc(m)}</div>`;setTimeout(()=>$('#flashWrap').innerHTML='',3200);}
+const STATUSES=['found','joined','ready','started','completed','paid','passed'];
+async function load(){
+  const [items,sum]=await Promise.all([fetch('/api/items').then(r=>r.json()),fetch('/api/summary').then(r=>r.json())]);
+  $('#sum').innerHTML=`<b style="color:var(--txt)">${sum.total}</b> total · 📋 ${sum.by_type.survey} surveys · 🎓 ${sum.by_type.study} studies<br>💵 Earned (real only): <b style="color:var(--green)">${money(sum.earned_total)}</b> · ⏳ Pending potential: <b style="color:var(--txt)">${money(sum.pending_potential)}</b><br>Statuses: ${Object.entries(sum.by_status).map(([k,v])=>k+': '+v).join(' · ')}`;
+  $('#list').innerHTML='<table><tr><th>Item</th><th>Typical pay</th><th>Status</th><th>Actions</th></tr>'+items.map(r=>`<tr><td><b>${esc(r.provider)}</b> — ${esc(r.title)}<div class="mut">${esc(r.type)} · ${esc(r.deadline||'')}</div></td><td>${money(r.pay_amount)} · ${esc(r.pay_type)}${r.status==='paid'&&r.paid_amount?`<div style="color:var(--green)">got ${money(r.paid_amount)}</div>`:''}</td><td>${esc(r.status)}</td><td><div class="row">
+    <select id="st_${esc(r.slug)}">${STATUSES.map(s=>`<option ${s===r.status?'selected':''}>${s}</option>`).join('')}</select>
+    <button onclick="setSt('${esc(r.slug)}')">Set</button>
+    <input id="amt_${esc(r.slug)}" type="number" step="0.01" placeholder="$ actually paid" style="width:130px">
+    <button class="green" onclick="markPaid('${esc(r.slug)}')">💵 Paid</button>
+    <button class="red" onclick="delItem('${esc(r.slug)}')">Delete</button>
+  </div></td></tr>`).join('')+'</table>';
+}
+window.addItem=async()=>{
+  const body={slug:$('#f_slug').value.trim(),title:$('#f_title').value.trim(),provider:$('#f_provider').value.trim(),type:$('#f_type').value,status:$('#f_status').value,pay_amount:parseFloat($('#f_pay').value)||0,pay_type:$('#f_paytype').value,est_minutes:parseInt($('#f_mins').value)||0,url:$('#f_url').value.trim(),eligibility:$('#f_elig').value.trim(),deadline:$('#f_deadline').value.trim(),notes:$('#f_notes').value.trim(),blocker:$('#f_blocker').value.trim(),free_confirmed:$('#f_free').value==='yes',requires_payment:$('#f_reqpay').value==='yes'};
+  if(!body.slug||!body.title){alert('Slug and title are required.');return;}
+  const r=await fetch('/api/admin/items',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  if(r.ok){flash('✓ Saved '+body.slug);load();}else alert('Save failed: '+(await r.text()));
+};
+window.setSt=async(slug)=>{const st=$('#st_'+CSS.escape(slug)).value;const r=await fetch('/api/items/'+slug,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({status:st})});if(r.ok){flash('✓ '+slug+' → '+st);load();}else alert('Failed');};
+window.markPaid=async(slug)=>{const amt=parseFloat($('#amt_'+CSS.escape(slug)).value);if(!(amt>0)){alert('Type the REAL $ amount you actually received (must be over $0).');return;}const r=await fetch('/api/admin/items/'+slug+'/paid',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({amount:amt})});if(r.ok){flash('💵 '+slug+' paid '+money(amt));load();}else alert('Failed');};
+window.delItem=async(slug)=>{if(!confirm('Delete '+slug+' for good?'))return;const r=await fetch('/api/admin/items/'+slug,{method:'DELETE'});if(r.ok){flash('Deleted '+slug);load();}else alert('Failed');};
+load();
+</script></body></html>

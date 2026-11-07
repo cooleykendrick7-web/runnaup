@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>RUNNAUP — Operator Panel</title>
+<meta name="theme-color" content="#0b1020">
+<style>
+:root{--bg:#070b16;--panel:#0e1628;--panel2:#121f3a;--line:#21335c;--txt:#e8eefc;--mut:#93a7cf;--gold:#fbbf24;--green:#4ade80;--acc:#38bdf8;--red:#f87171}
+*{box-sizing:border-box}body{margin:0;font-family:Inter,system-ui,sans-serif;background:var(--bg);color:var(--txt)}
+header{padding:16px 18px;background:linear-gradient(90deg,#052e16,#14532d);border-bottom:1px solid var(--line)}
+main{max-width:1020px;margin:0 auto;padding:16px}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:6px 0 14px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px}.card b{font-size:25px;display:block}.card span{color:var(--mut);font-size:13px}
+button{background:var(--acc);color:#04121f;border:0;padding:8px 12px;border-radius:9px;font-weight:700;cursor:pointer;font-size:13px}
+button.ghost{background:transparent;color:var(--txt);border:1px solid var(--line)}button.gold{background:var(--gold);color:#231a02}
+pre{background:#0a1424;border:1px solid var(--line);border-radius:12px;padding:14px;overflow:auto;font-size:12.5px;white-space:pre-wrap}
+.mut{color:var(--mut);font-size:13px}a{color:var(--acc)}h2{margin:20px 0 8px}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.notebox{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin:10px 0;font-size:14px}
+#liveDot{display:inline-block;width:9px;height:9px;border-radius:99px;background:#4ade80;margin-right:6px}
+</style></head>
+<body>
+<header><div class="row" style="justify-content:space-between"><div><h1 style="margin:0">🛰️ RUNNAUP — Operator Panel</h1><div class="mut" style="color:#a7c4ae"><span id="liveDot"></span>Run by Milli for Ken. Live from the database. No password. <span id="upd"></span></div></div>
+<div class="row"><a href="/"><button class="ghost">Board</button></a><a href="/admin"><button class="gold">⚙️ Admin</button></a></div></div></header>
+<main>
+<div class="cards">
+  <div class="card"><span>🔎 Total</span><b id="cTotal">–</b><span id="cTypes"></span></div>
+  <div class="card"><span>💵 Earned (real only)</span><b style="color:var(--green)" id="cEarned">–</b><span>paid rows with amount &gt; $0</span></div>
+  <div class="card"><span>⏳ Pending potential</span><b style="color:var(--gold)" id="cPending">–</b><span>joined → completed</span></div>
+  <div class="card"><span>🧾 Missing profile answers</span><b style="color:var(--red)" id="cMissing">–</b><span>Ken-only — never invented</span></div>
+</div>
+<div class="notebox"><b>🚫 Free rule:</b> <span class="mut" id="freeRule">—</span></div>
+<div class="notebox"><b>🛡️ Honest rule:</b> <span class="mut" id="honestRule">—</span></div>
+<h2>🎯 Best $/hr Ready</h2><div id="best" class="notebox"><span class="mut">Loading…</span></div>
+<h2>📡 Raw operator summary (JSON)</h2><pre id="raw">Loading…</pre>
+<p class="mut" style="text-align:center;margin-top:16px">RUNNAUP Operator v1.0 · If it's not in this panel, it hasn't happened.</p>
+</main>
+<script>
+const $=s=>document.querySelector(s);
+const esc=t=>String(t??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const money=n=>'$'+Number(n||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+async function load(){
+  try{
+    const s=await fetch('/api/operator/summary').then(r=>r.json());
+    $('#cTotal').textContent=s.total;
+    $('#cTypes').textContent=`${s.by_type.survey} surveys · ${s.by_type.study} studies`;
+    $('#cEarned').textContent=money(s.earned_total);
+    $('#cPending').textContent=money(s.pending_potential);
+    $('#cMissing').textContent=s.missing_profile_count;
+    $('#freeRule').textContent=s.free_rule;
+    $('#honestRule').textContent=s.honest_rule;
+    $('#best').innerHTML=s.best_ready.length?s.best_ready.map(r=>`<div>⚡ <b>${esc(r.provider)}</b> — ${money(r.pay_amount)} · ${money(r.hourly)}/hr</div>`).join(''):'<span class="mut">Nothing Ready yet.</span>';
+    $('#raw').textContent=JSON.stringify(s,null,2);
+    $('#upd').textContent='Updated '+new Date().toLocaleTimeString();
+  }catch(e){}
+}
+load(); setInterval(load,20000);
+</script></body></html>
